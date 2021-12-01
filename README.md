@@ -2,6 +2,11 @@
 
 This is a fork of the [Native Flex Dialpad Add-on](https://github.com/twilio-professional-services/flex-dialpad-addon-plugin). It has been modified for Opendoor's development environment. The original documentation ios preserved below the line break.
 
+This adds a widget (plus icon) to enable transfers to direct phone numbers
+![Screen Shot 2021-12-01 at 12 59 04 PM](https://user-images.githubusercontent.com/6895213/144321502-a4deb621-b01c-44ae-911a-d19c4ce0a340.png)
+
+
+
 ## Local development
 
 TL;DR You'll be starting 2 servers: one for the plug-in front-end and one for the functions on the back-end. They can each be run from their respective directories with `yarn start` after you've set up the `.env` files.
