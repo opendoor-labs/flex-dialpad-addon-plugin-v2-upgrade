@@ -1,3 +1,7 @@
+# DEPRECATED
+
+Moved to code/js/packages/plugin-flex-dialpad
+
 # Opendoor Fork of Native Flex Dialpad Add-on
 
 This is a fork of the [Native Flex Dialpad Add-on](https://github.com/twilio-professional-services/flex-dialpad-addon-plugin). It has been modified for Opendoor's development environment. The original documentation ios preserved below the line break.
