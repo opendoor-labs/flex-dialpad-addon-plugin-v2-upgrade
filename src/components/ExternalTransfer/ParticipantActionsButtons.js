@@ -72,13 +72,13 @@ class ParticipantActionsButtons extends React.Component {
           icon="Accept"
           className="ParticipantCanvas-AcceptAction"
           onClick={this.onKickParticipantConfirmClick}
-          themeOverride={this.props.theme.ParticipantsCanvas.ParticipantCanvas.Button}
+          variant='secondary'
         />
         <IconButton
           icon="Close"
           className="ParticipantCanvas-DeclineAction"
           onClick={this.hideKickConfirmation}
-          themeOverride={this.props.theme.ParticipantsCanvas.ParticipantCanvas.Button}
+          variant='secondary'
         />
       </React.Fragment>
     );
@@ -104,14 +104,14 @@ class ParticipantActionsButtons extends React.Component {
           className="ParticipantCanvas-HoldButton"
           disabled={!TaskHelper.canHold(task) || participant.status !== 'joined'}
           onClick={this.onHoldParticipantClick}
-          themeOverride={theme.ParticipantsCanvas.ParticipantCanvas.Button}
+          variant='secondary'
           title={holdParticipantTooltip}
         />
         <IconButton
           icon="Hangup"
           className="ParticipantCanvas-HangupButton"
           onClick={this.showKickConfirmation}
-          themeOverride={theme.ParticipantsCanvas.ParticipantCanvas.HangUpButton}
+          variant='destructive'
           title={kickParticipantTooltip}
         />
       </React.Fragment>
@@ -119,7 +119,8 @@ class ParticipantActionsButtons extends React.Component {
   }
 
   render() {
-    return this.props.listMode
+    if (this.props.view.activeView != 'teams') {
+      return this.props.listMode
       ? (
         <ActionsContainerListItem className="ParticipantCanvas-Actions">
           {this.props.showKickConfirmation
@@ -135,17 +136,22 @@ class ParticipantActionsButtons extends React.Component {
           }
         </ActionsContainer>
       );
+    } else {
+      return (null);
+    }
   }
 }
 
 const mapStateToProps = (state, ownProps) => {
   const { participant } = ownProps;
+  const view = state.flex.view;
   const componentViewStates = state.flex.view.componentViewStates;
   const customParticipants = componentViewStates.customParticipants || {};
   const participantState = customParticipants[participant.callSid] || {};
   const customParticipantsState = {};
 
   return {
+    view,
     showKickConfirmation: participantState.showKickConfirmation,
     setShowKickConfirmation: value => {
       customParticipantsState[participant.callSid] = {

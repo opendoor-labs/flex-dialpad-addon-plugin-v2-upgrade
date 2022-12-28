@@ -13,6 +13,7 @@
   "engines": {
   },
   "dependencies": {
+    "axios": "^0.27.2",
     "twilio-flex-token-validator": "^1.5.1"
   }
 }

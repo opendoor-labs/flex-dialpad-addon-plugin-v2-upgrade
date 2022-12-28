@@ -1,8 +1,8 @@
-import { VERSION } from '@twilio/flex-ui';
-import { FlexPlugin } from 'flex-plugin';
+import { FlexPlugin } from '@twilio/flex-plugin';
+import { CustomizationProvider } from "@twilio-paste/core/customization";
 
-import reducers, { namespace } from './states';
 import registerCustomActions from './customActions';
+import registerCustomNotifications from './notifications';
 import { loadExternalTransferInterface } from './components/ExternalTransfer';
 import { loadInternalCallInterface } from './components/InternalCall';
 
@@ -14,23 +14,15 @@ export default class DialpadPlugin extends FlexPlugin {
   }
 
   init(flex, manager) {
-  
+    flex.setProviders({
+        PasteThemeProvider: CustomizationProvider,
+    });
+
     loadExternalTransferInterface.bind(this)(flex, manager)
 
     loadInternalCallInterface.bind(this)(flex, manager)
 
     registerCustomActions(manager);
-
-    this.registerReducers(manager);
-  }
-
-  registerReducers(manager) {
-    if (!manager.store.addReducer) {
-      // eslint: disable-next-line
-      console.error(`You need FlexUI > 1.9.0 to use built-in redux; you are currently on ${VERSION}`);
-      return;
-    }
-
-    manager.store.addReducer(namespace, reducers);
+    registerCustomNotifications(flex, manager);
   }
 }

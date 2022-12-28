@@ -1,30 +1,73 @@
 import * as React from 'react';
-import ConferenceService from '../../helpers/ConferenceService';
+import ConferenceService from '../../services/ConferenceService';
 
 class ConferenceMonitor extends React.Component {
   state = {
-    liveParticipantCount: 0
+    liveParticipantCount: 0,
+    didMyWorkerJoinYet: false,
+    stopMonitoring: false
   }
 
   componentDidUpdate() {
+
+    if (this.state.stopMonitoring) {
+      return;
+    }
+
     const { task } = this.props;
+
     const conference = task && (task.conference || {});
     const {
       conferenceSid,
       liveParticipantCount,
+      liveWorkerCount,
       participants = []
     } = conference;
     const liveParticipants = participants.filter(p => p.status === 'joined');
+    const myActiveParticipant = liveParticipants.find(p => p.isCurrentWorker);
+
 
     if (liveParticipantCount > 2 && this.state.liveParticipantCount <= 2) {
-      this.handleMoreThanTwoParticipants(conferenceSid, liveParticipants);
+      if (this.shouldUpdateParticipants(participants, liveWorkerCount)) {
+        this.handleMoreThanTwoParticipants(conferenceSid, liveParticipants);
+      }
     } else if (liveParticipantCount <= 2 && this.state.liveParticipantCount > 2) {
-      this.handleOnlyTwoParticipants(conferenceSid, liveParticipants);
+      if (this.shouldUpdateParticipants(participants, liveWorkerCount)) {
+        this.handleOnlyTwoParticipants(conferenceSid, liveParticipants);
+      }
     }
 
-    if (liveParticipantCount !== this.state.liveParticipantCount) {
+    if (liveParticipantCount !== this.state.liveParticipantCount) {      
       this.setState({ liveParticipantCount });
     }
+    
+
+    if (!this.state.didMyWorkerJoinYet && myActiveParticipant) {
+      // Store the fact that my worker has clearly joined the conference - for use later
+      this.setState({ didMyWorkerJoinYet: true });
+    }
+
+    if (this.state.didMyWorkerJoinYet && !myActiveParticipant) {
+      // My worker has clearly left since previously joining
+      // Time to stop monitoring at this point. Covers warm and cold transfers and generally stops Flex UI from tinkering
+      // once the agent is done with the call.
+      console.debug('dialpad-addon, ConferenceMonitor, componentDidUpdate: My participant left. Time to STOP monitoring this task/conference');
+      this.setState({ stopMonitoring: true, didMyWorkerJoinYet: false });
+    }
+
+  }
+
+
+  hasUnknownParticipant = (participants = []) => {
+    return participants.some(p => p.participantType === 'unknown');
+  }
+
+  shouldUpdateParticipants = (participants, liveWorkerCount) => {
+    console.debug(
+      'dialpad-addon, ConferenceMonitor, shouldUpdateParticipants:',
+      liveWorkerCount <= 1 && this.hasUnknownParticipant(participants)
+    );
+    return liveWorkerCount <= 1 && this.hasUnknownParticipant(participants);
   }
 
   handleMoreThanTwoParticipants = (conferenceSid, participants) => {
